@@ -9,6 +9,7 @@ import { ScopeSwitcher } from './scope-switcher';
 import { SidebarUserRow } from './sidebar-user-row';
 import { TopBar } from './top-bar';
 import { MobileBottomNav } from './mobile-bottom-nav';
+import { Logo } from '@/components/shared/logo';
 import type { MeResponse } from '@/lib/types';
 
 function NavLinks({ permissions, onNavigate }: { permissions: string[]; onNavigate?: () => void }) {
@@ -47,7 +48,10 @@ function ShellContents({ me, children }: { me: MeResponse; children: React.React
     <div className="flex flex-1 min-h-screen">
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-sidebar px-4 py-5 gap-4">
-        <div className="text-lg font-semibold px-2 text-sidebar-foreground">GHAMSU Manager</div>
+        <div className="flex items-center gap-2 px-2 text-lg font-semibold text-sidebar-foreground">
+          <Logo />
+          GHAMSU Manager
+        </div>
         <ScopeSwitcher me={me} />
         <div className="flex-1 overflow-y-auto">
           <NavLinks permissions={me.permissions} />
@@ -60,7 +64,10 @@ function ShellContents({ me, children }: { me: MeResponse; children: React.React
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-foreground/40" onClick={() => setMobileOpen(false)} />
           <aside className="absolute left-0 top-0 h-full w-72 bg-sidebar px-4 py-5 flex flex-col gap-4">
-            <div className="text-lg font-semibold px-2 text-sidebar-foreground">GHAMSU Manager</div>
+            <div className="flex items-center gap-2 px-2 text-lg font-semibold text-sidebar-foreground">
+              <Logo />
+              GHAMSU Manager
+            </div>
             <ScopeSwitcher me={me} />
             <div className="flex-1 overflow-y-auto">
               <NavLinks permissions={me.permissions} onNavigate={() => setMobileOpen(false)} />
@@ -79,7 +86,10 @@ function ShellContents({ me, children }: { me: MeResponse; children: React.React
           >
             ☰
           </button>
-          <span className="text-sm font-semibold text-foreground">GHAMSU Manager</span>
+          <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+            <Logo size={20} />
+            GHAMSU Manager
+          </span>
           <span className="w-8" />
         </div>
         <TopBar me={me} />

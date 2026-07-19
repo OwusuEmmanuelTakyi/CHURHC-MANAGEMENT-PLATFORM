@@ -1,10 +1,16 @@
-import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { db } from '@/lib/supabase/server';
 import { computeLocalAttendanceAnalytics } from '@/lib/attendance-analytics';
 import { hadBirthdayInPastWeek } from '@/lib/birthdays';
 import { renderWeeklyAnalysisEmail } from '@/lib/email-template';
 import { audit } from '@/lib/audit';
+
+export interface WeeklyAnalysisResult {
+  localsReported: number;
+  sundayDate: string;
+  processed: number;
+  results: { localId: number; sent: boolean; recipients?: number; reason?: string }[];
+}
 
 function lastSundayIso(now: Date): string {
   const dow = now.getUTCDay(); // 0 = Sunday
@@ -13,10 +19,7 @@ function lastSundayIso(now: Date): string {
   return sunday.toISOString().slice(0, 10);
 }
 
-// Exported separately from GET() so /api/cron/daily can also dispatch to it —
-// Vercel Hobby caps cron jobs at 2, so this can't have its own schedule entry
-// alongside email-scheduler and birthdays. See app/api/cron/daily/route.ts.
-export async function runWeeklyAnalysisJob() {
+export async function runWeeklyAnalysis(): Promise<WeeklyAnalysisResult> {
   const now = new Date();
   const sundayIso = lastSundayIso(now);
   const sundayDate = new Date(`${sundayIso}T00:00:00Z`);
@@ -103,19 +106,10 @@ export async function runWeeklyAnalysisJob() {
     }
   }
 
-  return { sundayDate: sundayIso, processed: results.length, results };
-}
-
-export async function GET(req: Request) {
-  const authHeader = req.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  try {
-    const result = await runWeeklyAnalysisJob();
-    return NextResponse.json(result);
-  } catch (err) {
-    return NextResponse.json({ error: err instanceof Error ? err.message : 'Unknown error' }, { status: 500 });
-  }
+  return {
+    localsReported: results.filter((r) => r.sent).length,
+    sundayDate: sundayIso,
+    processed: results.length,
+    results,
+  };
 }

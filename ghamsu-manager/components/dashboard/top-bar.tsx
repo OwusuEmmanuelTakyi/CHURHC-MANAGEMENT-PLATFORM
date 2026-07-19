@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { Search, Bell } from 'lucide-react';
 import { NAV_ITEMS } from '@/lib/nav-items';
@@ -60,10 +61,10 @@ export function TopBar({ me }: { me: MeResponse }) {
             </button>
           )}
 
-          <div className="flex items-center gap-2">
+          <Link href="/profile" className="flex items-center gap-2">
             <Avatar name={me.profile.name} size="sm" />
             <ScopePill role={me.activeRole.role} shortCode={me.roles.find((r) => r.id === me.activeRole.id)?.locals?.short_code} />
-          </div>
+          </Link>
         </div>
       </div>
     </header>

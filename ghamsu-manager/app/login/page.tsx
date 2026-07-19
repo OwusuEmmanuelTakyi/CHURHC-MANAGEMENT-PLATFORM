@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
+import { Logo } from '@/components/shared/logo';
 
 type Stage = 'password' | 'enroll' | 'challenge';
 
@@ -53,7 +54,10 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm bg-card rounded-xl shadow p-6 space-y-4">
-        <h1 className="text-xl font-semibold text-center text-primary">GHAMSU Manager</h1>
+        <h1 className="flex items-center justify-center gap-2 text-xl font-semibold text-center text-primary">
+          <Logo size={32} />
+          GHAMSU Manager
+        </h1>
 
         {stage === 'password' && (
           <>

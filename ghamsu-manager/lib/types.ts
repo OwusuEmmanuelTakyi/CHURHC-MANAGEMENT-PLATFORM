@@ -202,7 +202,7 @@ export interface RoleAssignment {
 }
 
 export interface MeResponse {
-  profile: { id: string; name: string; phone: string };
+  profile: { id: string; name: string; phone: string; email: string | null };
   roles: RoleAssignment[];
   activeRole: { id: number; role: Role; localId: number | null };
   permissions: string[];

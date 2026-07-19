@@ -13,15 +13,16 @@ export async function GET() {
   try {
     const ctx = await getScopedContext();
 
-    const [{ data: profile }, { data: roles }] = await Promise.all([
+    const [{ data: profile }, { data: roles }, { data: authUser }] = await Promise.all([
       db.from('executives').select('id, name, phone').eq('id', ctx.userId).single(),
       db.from('role_assignments')
         .select('id, role_type, local_id, academic_year, locals(name, short_code)')
         .eq('user_id', ctx.userId).eq('active', true),
+      db.auth.admin.getUserById(ctx.userId),
     ]);
 
     return NextResponse.json({
-      profile,
+      profile: profile ? { ...profile, email: authUser?.user?.email ?? null } : profile,
       roles,
       activeRole: { id: ctx.assignmentId, role: ctx.role, localId: ctx.localId },
       permissions: PERMISSIONS[ctx.role],
