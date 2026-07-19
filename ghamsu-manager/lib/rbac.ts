@@ -22,10 +22,6 @@ export async function getScopedContext(): Promise<Ctx> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new ApiError(401, 'Not authenticated');
 
-  // MFA gate: password-only sessions are refused
-  const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-  if (aal?.currentLevel !== 'aal2') throw new ApiError(401, 'MFA required');
-
   // All active roles this user holds
   const { data: roles, error } = await db
     .from('role_assignments')

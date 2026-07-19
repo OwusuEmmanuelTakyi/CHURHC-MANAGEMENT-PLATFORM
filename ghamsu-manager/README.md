@@ -49,6 +49,14 @@ It's safe to ping this on overlapping schedules or trigger it manually while one
 
 Hobby cron timing isn't precise, and cron-job.org runs on its own schedule — for testing without waiting, `POST /api/admin/run-cron` (national president only, requires a logged-in session) runs any of the three jobs immediately and returns its result: `{ "task": "birthdays" | "weekly_analysis" | "email_scheduler" }` in the request body.
 
+## Authentication
+
+Login is email + password via Supabase Auth (`supabase.auth.signInWithPassword`) — no public signup, accounts are invite-only, sessions are httpOnly cookies.
+
+MFA was removed at tag `pre-mfa-removal`; to re-introduce it, start from that tag's `lib/rbac.ts` and `app/login/page.tsx`, or re-implement using Supabase Auth MFA (enroll/challenge/verify + AAL2 assertion in getScopedContext).
+
+⚠️ **Launch consideration:** decide on MFA before importing real member data. The app holds personal data on thousands of students and password-only auth is a real risk at launch — this is currently unresolved.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

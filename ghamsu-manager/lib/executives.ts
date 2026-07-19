@@ -2,9 +2,9 @@ import { randomBytes } from 'crypto';
 import { ApiError, type Ctx } from './rbac';
 
 // Shown once to the creating admin, who shares it out-of-band (phone/WhatsApp) —
-// same trust model as the self-registration link. TOTP is still required on
-// top of this on first login. There's no self-service password change yet;
-// that's a natural follow-up if this needs to be more than a one-time credential.
+// same trust model as the self-registration link. There's no self-service
+// password change yet; that's a natural follow-up if this needs to be more
+// than a one-time credential.
 export function generateTempPassword(): string {
   const random = randomBytes(9).toString('base64').replace(/[+/=]/g, '');
   return `${random}Aa1!`;
