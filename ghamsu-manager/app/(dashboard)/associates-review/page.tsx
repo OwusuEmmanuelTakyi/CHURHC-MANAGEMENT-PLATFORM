@@ -2,14 +2,14 @@
 import Link from 'next/link';
 import { useGraduationQueue } from '@/lib/hooks/use-graduation-queue';
 
-export default function GraduationReviewPage() {
+export default function AssociatesReviewPage() {
   const { data, isLoading, error } = useGraduationQueue();
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-xl font-semibold text-foreground mb-1">Graduation review</h1>
+      <h1 className="text-xl font-semibold text-foreground mb-1">Associates review</h1>
       <p className="text-sm text-muted-foreground mb-4">
-        Active or executive members past their expected graduation date — review and update their status.
+        Active or executive members past their expected graduation date — review and move them to associate status.
       </p>
 
       {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}

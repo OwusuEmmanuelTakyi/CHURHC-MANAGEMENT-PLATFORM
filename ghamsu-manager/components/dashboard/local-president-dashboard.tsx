@@ -95,10 +95,10 @@ export function LocalPresidentDashboard() {
 
         <div className="space-y-4">
           <div className="rounded-xl border border-border bg-card p-4 sm:p-5">
-            <h2 className="font-semibold text-foreground">Graduation review</h2>
+            <h2 className="font-semibold text-foreground">Associates review</h2>
             <p className="text-2xl font-semibold text-foreground mt-2">{data.stats.graduationDueCount}</p>
             <p className="text-sm text-muted-foreground mt-1">members past expected graduation</p>
-            <Link href="/graduation-review" className="inline-block mt-3 rounded-lg bg-primary text-white text-sm px-3 py-1.5">
+            <Link href="/associates-review" className="inline-block mt-3 rounded-lg bg-primary text-white text-sm px-3 py-1.5">
               Review now
             </Link>
           </div>

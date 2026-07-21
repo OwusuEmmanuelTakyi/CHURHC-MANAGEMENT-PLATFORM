@@ -26,7 +26,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Members', href: '/members', permission: 'members.view', icon: Users },
   { label: 'Locals & Wings', href: '/locals', permission: 'locals.view', icon: Building2 },
   { label: 'Leadership', href: '/leadership', permission: ['leadership.admin', 'leadership.view'], icon: Crown },
-  { label: 'Graduation Review', href: '/graduation-review', permission: 'graduation.view', icon: GraduationCap },
+  { label: 'Associates Review', href: '/associates-review', permission: 'graduation.view', icon: GraduationCap },
   { label: 'Communications', href: '/email', permission: ['email.send', 'email.approve', 'email.draft'], icon: Mail },
   { label: 'Contributions', href: '/contributions', permission: 'contributions.view', icon: Wallet },
   { label: 'Documents', href: '/documents', permission: 'documents.view', icon: FileText },

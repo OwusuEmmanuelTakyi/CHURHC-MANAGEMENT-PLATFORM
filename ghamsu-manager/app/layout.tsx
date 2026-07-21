@@ -16,6 +16,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "GHAMSU Manager",
   description: "GHAMSU executive management platform",
+  icons: {
+    icon: "/branding/logo.png",
+    shortcut: "/branding/logo.png",
+    apple: "/branding/logo.png",
+  },
 };
 
 export default function RootLayout({

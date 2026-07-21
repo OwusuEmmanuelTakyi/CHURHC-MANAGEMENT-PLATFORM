@@ -7,7 +7,7 @@ export function GraduationQueueCard() {
   return (
     <div className="rounded-xl border border-border bg-card p-4 sm:p-5">
       <div className="flex items-center justify-between">
-        <h2 className="font-semibold text-foreground">Graduation queue</h2>
+        <h2 className="font-semibold text-foreground">Associates queue</h2>
         {!isLoading && !error && (
           <span className="rounded-full bg-accent/20 text-primary text-xs font-medium px-2 py-0.5">
             {data?.count ?? 0}

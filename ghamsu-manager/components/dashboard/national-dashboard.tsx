@@ -72,7 +72,7 @@ export function NationalDashboard() {
           <h2 className="font-semibold text-foreground mb-3">Needs attention</h2>
           <ul className="space-y-2">
             <li>
-              <Link href="/graduation-review" className="flex items-start gap-2 rounded-lg bg-chart-5/10 p-2.5 hover:bg-chart-5/15">
+              <Link href="/associates-review" className="flex items-start gap-2 rounded-lg bg-chart-5/10 p-2.5 hover:bg-chart-5/15">
                 <AlertTriangle size={16} className="text-chart-5 mt-0.5 shrink-0" />
                 <span className="text-sm text-foreground">{data.needsAttention.gradOverdueCount} past expected graduation</span>
               </Link>
