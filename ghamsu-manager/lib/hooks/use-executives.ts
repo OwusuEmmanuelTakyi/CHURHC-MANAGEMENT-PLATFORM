@@ -46,3 +46,12 @@ export function useActivateExecutive() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['executives'] }),
   });
 }
+
+export function useResetExecutivePassword() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (assignmentId: number) =>
+      apiFetch<{ ok: true; tempPassword: string }>(`/api/executives/${assignmentId}/reset-password`, { method: 'PATCH' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['executives'] }),
+  });
+}

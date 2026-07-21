@@ -51,7 +51,6 @@ export function CreateExecutiveForm({ me, onDone }: { me: MeResponse; onDone: ()
         <h3 className="font-semibold text-foreground">Account created</h3>
         <p className="text-sm text-muted-foreground">
           Share these credentials with {result.email} securely (e.g. phone or WhatsApp) — this password is shown only once.
-          They&apos;ll be prompted to set up an authenticator app on first login.
         </p>
         <dl className="text-sm space-y-1">
           <div><dt className="inline text-muted-foreground">Email: </dt><dd className="inline font-mono text-foreground">{result.email}</dd></div>

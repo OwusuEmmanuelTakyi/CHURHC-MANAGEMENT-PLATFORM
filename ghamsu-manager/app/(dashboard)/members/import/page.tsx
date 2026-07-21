@@ -31,6 +31,7 @@ export default function MembersImportPage() {
   const [uploadResult, setUploadResult] = useState<ImportUploadResponse | null>(null);
   const [decisions, setDecisions] = useState<Record<string, 'skip' | 'merge'>>({});
   const [uploadError, setUploadError] = useState('');
+  const [fileName, setFileName] = useState('');
   const [result, setResult] = useState<ImportConfirmResponse | null>(null);
   const confirm = useImportConfirm(uploadResult?.jobId ?? null);
 
@@ -41,7 +42,7 @@ export default function MembersImportPage() {
   async function handleUpload(e: React.FormEvent) {
     e.preventDefault();
     const file = fileInputRef.current?.files?.[0];
-    if (!file) return;
+    if (!file) { setUploadError('Choose a file first.'); return; }
     setUploadError('');
     try {
       const res = await upload.mutateAsync(file);
@@ -64,6 +65,7 @@ export default function MembersImportPage() {
     setDecisions({});
     setResult(null);
     setUploadError('');
+    setFileName('');
     setStep('upload');
     if (fileInputRef.current) fileInputRef.current.value = '';
   }
@@ -104,7 +106,9 @@ export default function MembersImportPage() {
               type="file"
               accept=".xlsx,.xls,.csv"
               className="text-sm text-foreground"
+              onChange={(e) => { setFileName(e.target.files?.[0]?.name ?? ''); setUploadError(''); }}
             />
+            {fileName && <p className="text-xs text-muted-foreground">Selected: {fileName}</p>}
             <div>
               <button
                 type="submit"

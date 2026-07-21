@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { useExecutives, useDeactivateExecutive, useActivateExecutive } from '@/lib/hooks/use-executives';
+import { useExecutives, useDeactivateExecutive, useActivateExecutive, useResetExecutivePassword } from '@/lib/hooks/use-executives';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import type { MeResponse } from '@/lib/types';
 
@@ -15,8 +15,10 @@ export function ExecutivesList({ me }: { me: MeResponse }) {
   const { data: executives, isLoading, error } = useExecutives();
   const deactivate = useDeactivateExecutive();
   const activate = useActivateExecutive();
+  const resetPassword = useResetExecutivePassword();
   const [confirmDeactivateId, setConfirmDeactivateId] = useState<number | null>(null);
   const [confirmActivateId, setConfirmActivateId] = useState<number | null>(null);
+  const [confirmResetId, setConfirmResetId] = useState<number | null>(null);
   const [newPassword, setNewPassword] = useState<{ name: string; tempPassword: string } | null>(null);
 
   if (isLoading) return <p className="text-sm text-muted-foreground">Loading…</p>;
@@ -32,7 +34,7 @@ export function ExecutivesList({ me }: { me: MeResponse }) {
         <div className="mb-4 rounded-xl border border-border bg-card p-4 space-y-2">
           <h3 className="font-semibold text-foreground">{newPassword.name} reactivated</h3>
           <p className="text-sm text-muted-foreground">
-            Share this new temporary password securely — it&apos;s shown only once. They&apos;ll keep their existing authenticator setup.
+            Share this new temporary password securely — it&apos;s shown only once.
           </p>
           <p className="text-sm font-mono text-foreground">{newPassword.tempPassword}</p>
           <button onClick={() => setNewPassword(null)} className="text-sm text-primary font-medium">Done</button>
@@ -68,9 +70,14 @@ export function ExecutivesList({ me }: { me: MeResponse }) {
                 <td className="px-3 py-2">
                   {canManage(ex.role_type, ex.user_id) && (
                     ex.active ? (
-                      <button onClick={() => setConfirmDeactivateId(ex.id)} className="text-xs text-destructive">
-                        Deactivate
-                      </button>
+                      <div className="flex gap-2">
+                        <button onClick={() => setConfirmResetId(ex.id)} className="text-xs text-primary font-medium">
+                          Reset password
+                        </button>
+                        <button onClick={() => setConfirmDeactivateId(ex.id)} className="text-xs text-destructive">
+                          Deactivate
+                        </button>
+                      </div>
                     ) : (
                       <button onClick={() => setConfirmActivateId(ex.id)} className="text-xs text-primary font-medium">
                         Activate
@@ -111,6 +118,22 @@ export function ExecutivesList({ me }: { me: MeResponse }) {
           const res = await activate.mutateAsync(confirmActivateId);
           setNewPassword({ name: ex?.executives?.name ?? 'Executive', tempPassword: res.tempPassword });
           setConfirmActivateId(null);
+        }}
+      />
+
+      <ConfirmDialog
+        open={confirmResetId !== null}
+        title="Reset password"
+        description="This issues a new temporary password and immediately invalidates their current one — shown once, so have a way to share it ready."
+        confirmLabel="Reset password"
+        busy={resetPassword.isPending}
+        onCancel={() => setConfirmResetId(null)}
+        onConfirm={async () => {
+          if (confirmResetId === null) return;
+          const ex = executives.find((e) => e.id === confirmResetId);
+          const res = await resetPassword.mutateAsync(confirmResetId);
+          setNewPassword({ name: ex?.executives?.name ?? 'Executive', tempPassword: res.tempPassword });
+          setConfirmResetId(null);
         }}
       />
     </>
