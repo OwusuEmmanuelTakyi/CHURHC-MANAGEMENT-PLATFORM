@@ -2,6 +2,7 @@
 import { use, useMemo, useState } from 'react';
 import { useMe } from '@/lib/hooks/use-me';
 import { useAttendanceCheckIn, useToggleAttendance } from '@/lib/hooks/use-attendance';
+import { CheckInLinkPanel } from '@/components/attendance/checkin-link-panel';
 
 export default function ServiceCheckInPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -32,6 +33,8 @@ export default function ServiceCheckInPage({ params }: { params: Promise<{ id: s
 
   return (
     <div className="max-w-2xl">
+      {canTake && <CheckInLinkPanel serviceId={serviceId} />}
+
       <div className="sticky top-0 z-10 bg-background pb-3 pt-1 -mt-1">
         <div className="rounded-xl border border-border bg-card px-4 py-3 flex items-center justify-between">
           <span className="text-sm font-medium text-foreground">Present</span>

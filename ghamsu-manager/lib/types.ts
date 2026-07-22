@@ -302,6 +302,17 @@ export interface PublicRegistrationFormData {
   classes: SchoolClass[];
 }
 
+export interface PublicCheckInInfo {
+  localName: string;
+  serviceLabel: string;
+}
+
+export interface CheckInResult {
+  ok: true;
+  fullName: string;
+  alreadyMarked: boolean;
+}
+
 export interface UpcomingBirthday {
   id: number;
   full_name: string;

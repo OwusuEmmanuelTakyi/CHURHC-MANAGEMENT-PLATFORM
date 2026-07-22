@@ -117,6 +117,10 @@ export const registrationLinkCreateSchema = z.object({
   expires_at: z.iso.datetime().nullish(),
 });
 
+export const checkInSubmitSchema = z.object({
+  student_id: z.string().trim().min(1),
+});
+
 // Mirrors memberCreateSchema (minus local_id/status, which the link and the
 // approval step decide) plus date_of_birth. The honeypot field is read
 // straight off the raw body, not through this schema — see lib/registration.ts.

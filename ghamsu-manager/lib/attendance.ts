@@ -28,3 +28,31 @@ export async function auditAttendanceSession(ctx: Ctx, serviceId: number) {
 
   await audit(ctx, 'attendance.updated', 'service', serviceId, { presentCount: count ?? 0 });
 }
+
+const ATTENDANCE_RATE_LIMIT_PER_HOUR = 100;
+
+function currentHourWindow(): string {
+  const now = new Date();
+  now.setMinutes(0, 0, 0);
+  return now.toISOString();
+}
+
+// Same basic per-IP hourly counter as lib/registration.ts's limiter, kept as
+// its own copy against its own table (attendance_rate_limits) rather than
+// shared, so a burst of self check-ins never eats into the registration
+// form's much stricter budget or vice versa.
+export async function checkAndIncrementAttendanceIpLimit(ip: string, limit = ATTENDANCE_RATE_LIMIT_PER_HOUR): Promise<boolean> {
+  const windowHour = currentHourWindow();
+
+  const { error: insertError } = await db.from('attendance_rate_limits')
+    .insert({ ip, window_hour: windowHour, count: 1 });
+  if (!insertError) return true;
+
+  const { data: existing } = await db.from('attendance_rate_limits')
+    .select('count').eq('ip', ip).eq('window_hour', windowHour).single();
+  if (!existing || existing.count >= limit) return false;
+
+  await db.from('attendance_rate_limits')
+    .update({ count: existing.count + 1 }).eq('ip', ip).eq('window_hour', windowHour);
+  return true;
+}

@@ -53,3 +53,26 @@ export function useToggleAttendance(serviceId: number) {
     },
   });
 }
+
+export function useAttendanceLink(serviceId: number) {
+  return useQuery({
+    queryKey: ['attendance-link', serviceId],
+    queryFn: () => apiFetch<{ token: string | null }>(`/api/services/${serviceId}/attendance-link`),
+  });
+}
+
+export function useCreateAttendanceLink(serviceId: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => apiFetch<{ token: string }>(`/api/services/${serviceId}/attendance-link`, { method: 'POST' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['attendance-link', serviceId] }),
+  });
+}
+
+export function useRevokeAttendanceLink(serviceId: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => apiFetch<{ ok: true }>(`/api/services/${serviceId}/attendance-link`, { method: 'PATCH' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['attendance-link', serviceId] }),
+  });
+}
