@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
-import * as XLSX from 'xlsx';
 import { randomUUID } from 'crypto';
 import { db } from '@/lib/supabase/server';
 import { getScopedContext, requireRole, handleApiError, ApiError } from '@/lib/rbac';
-import { parseImportRow, H } from '@/lib/members-import';
+import { parseImportRow, parseImportFile, H } from '@/lib/members-import';
 import { audit } from '@/lib/audit';
 
 const MAX_ROWS = 5000;
@@ -30,9 +29,7 @@ export async function POST(req: Request) {
     if (!(file instanceof File)) throw new ApiError(422, 'No file uploaded');
 
     const buf = Buffer.from(await file.arrayBuffer());
-    const wb = XLSX.read(buf, { type: 'buffer' });
-    const sheet = wb.Sheets[wb.SheetNames[0]];
-    const rawRows: Record<string, unknown>[] = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+    const rawRows = parseImportFile(buf);
 
     if (rawRows.length === 0) throw new ApiError(422, 'The file has no data rows');
     if (rawRows.length > MAX_ROWS) throw new ApiError(422, `Too many rows — max ${MAX_ROWS} per import`);

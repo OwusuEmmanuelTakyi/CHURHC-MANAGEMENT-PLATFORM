@@ -22,6 +22,18 @@ export const H = {
 
 export const TEMPLATE_HEADERS = Object.values(H);
 
+// Without `raw: true`, SheetJS's CSV/text parser guesses cell types from the
+// literal text: a phone number like "0244123456" becomes the number
+// 244123456 (leading zero gone), and a date-shaped string like "2027-06"
+// becomes an Excel date serial instead of staying the text we asked for in
+// the header hint. `raw: true` keeps every cell as the string that was
+// actually typed, which is what parseImportRow expects to validate.
+export function parseImportFile(buf: Buffer): Record<string, unknown>[] {
+  const wb = XLSX.read(buf, { type: 'buffer', raw: true });
+  const sheet = wb.Sheets[wb.SheetNames[0]];
+  return XLSX.utils.sheet_to_json(sheet, { defval: '' });
+}
+
 const EXAMPLE_ROW = [
   'UG0012345', 'Ama Serwaa', 'female', '0244123456', 'ama@example.com',
   'Volta Hall', 'Choir', 'Morning Glory', '200', 'active', '2027-06', '2003-04-12',
