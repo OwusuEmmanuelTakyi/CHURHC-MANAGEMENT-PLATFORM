@@ -20,15 +20,16 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     await loadOwnedService(ctx, id);
 
     const { data: links } = await db.from('attendance_links')
-      .select('token, kind, label, created_at').eq('service_id', id).eq('active', true)
+      .select('token, kind, label, created_at, expires_at').eq('service_id', id).eq('active', true)
       .order('created_at', { ascending: false });
 
-    const selfToken = (links ?? []).find((l) => l.kind === 'self')?.token ?? null;
+    const selfLink = (links ?? []).find((l) => l.kind === 'self');
+    const self = selfLink ? { token: selfLink.token, expires_at: selfLink.expires_at } : null;
     const usherLinks = (links ?? [])
       .filter((l) => l.kind === 'usher')
-      .map((l) => ({ token: l.token, label: l.label, created_at: l.created_at }));
+      .map((l) => ({ token: l.token, label: l.label, created_at: l.created_at, expires_at: l.expires_at }));
 
-    return NextResponse.json({ selfToken, usherLinks });
+    return NextResponse.json({ self, usherLinks });
   } catch (e) { return handleApiError(e); }
 }
 

@@ -318,10 +318,11 @@ export interface UsherLink {
   token: string;
   label: string | null;
   created_at: string;
+  expires_at: string | null;
 }
 
 export interface AttendanceLinksResponse {
-  selfToken: string | null;
+  self: { token: string; expires_at: string | null } | null;
   usherLinks: UsherLink[];
 }
 
