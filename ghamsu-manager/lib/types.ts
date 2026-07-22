@@ -305,12 +305,29 @@ export interface PublicRegistrationFormData {
 export interface PublicCheckInInfo {
   localName: string;
   serviceLabel: string;
+  requiresPasscode: boolean;
 }
 
 export interface CheckInResult {
   ok: true;
   fullName: string;
   alreadyMarked: boolean;
+}
+
+export interface UsherLink {
+  token: string;
+  label: string | null;
+  created_at: string;
+}
+
+export interface AttendanceLinksResponse {
+  selfToken: string | null;
+  usherLinks: UsherLink[];
+}
+
+export interface CreatedAttendanceLink {
+  token: string;
+  passcode?: string;
 }
 
 export interface UpcomingBirthday {

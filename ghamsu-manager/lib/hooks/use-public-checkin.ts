@@ -12,7 +12,7 @@ export function usePublicCheckInInfo(token: string) {
 
 export function useSubmitCheckIn(token: string) {
   return useMutation({
-    mutationFn: (student_id: string) =>
-      apiFetch<CheckInResult>(`/api/checkin/${token}`, { method: 'POST', body: JSON.stringify({ student_id }) }),
+    mutationFn: (body: { student_id: string; passcode?: string }) =>
+      apiFetch<CheckInResult>(`/api/checkin/${token}`, { method: 'POST', body: JSON.stringify(body) }),
   });
 }

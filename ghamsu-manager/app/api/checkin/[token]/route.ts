@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/supabase/server';
 import { ApiError, handleApiError } from '@/lib/rbac';
 import { checkInSubmitSchema } from '@/lib/schemas';
-import { ATTENDANCE_ELIGIBLE_STATUSES, checkAndIncrementAttendanceIpLimit } from '@/lib/attendance';
+import { ATTENDANCE_ELIGIBLE_STATUSES, checkAndIncrementAttendanceIpLimit, verifyPasscode } from '@/lib/attendance';
 
 const SERVICE_TYPE_LABELS: Record<string, string> = {
   sunday_service: 'Sunday service',
@@ -12,7 +12,7 @@ const SERVICE_TYPE_LABELS: Record<string, string> = {
 
 async function loadValidLink(token: string) {
   const { data: link } = await db.from('attendance_links')
-    .select('token, service_id, active, expires_at, created_by').eq('token', token).single();
+    .select('token, service_id, active, expires_at, created_by, kind, passcode_hash').eq('token', token).single();
   if (!link || !link.active || (link.expires_at && new Date(link.expires_at) < new Date())) {
     throw new ApiError(404, 'This check-in link is no longer available.');
   }
@@ -25,14 +25,14 @@ async function loadValidLink(token: string) {
 export async function GET(_: Request, { params }: { params: Promise<{ token: string }> }) {
   try {
     const { token } = await params;
-    const { service } = await loadValidLink(token);
+    const { link, service } = await loadValidLink(token);
 
     const { data: local } = await db.from('locals').select('name').eq('id', service.local_id).single();
 
     const typeLabel = SERVICE_TYPE_LABELS[service.service_type] ?? service.service_type;
     const serviceLabel = service.title ? `${service.title} — ${typeLabel}, ${service.service_date}` : `${typeLabel}, ${service.service_date}`;
 
-    return NextResponse.json({ localName: local?.name ?? '', serviceLabel });
+    return NextResponse.json({ localName: local?.name ?? '', serviceLabel, requiresPasscode: link.kind === 'usher' });
   } catch (e) { return handleApiError(e); }
 }
 
@@ -46,6 +46,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ token: 
 
     const { link, service } = await loadValidLink(token);
     const body = checkInSubmitSchema.parse(await req.json());
+
+    if (link.kind === 'usher') {
+      if (!body.passcode || !link.passcode_hash || !verifyPasscode(body.passcode, link.passcode_hash)) {
+        throw new ApiError(401, 'Incorrect code for this link.');
+      }
+    }
 
     const { data: member } = await db.from('members')
       .select('id, full_name')

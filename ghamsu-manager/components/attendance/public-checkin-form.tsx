@@ -4,7 +4,9 @@ import { useSubmitCheckIn } from '@/lib/hooks/use-public-checkin';
 import { ApiClientError } from '@/lib/api-client';
 import type { CheckInResult } from '@/lib/types';
 
-export function PublicCheckInForm({ token }: { token: string }) {
+export function PublicCheckInForm({
+  token, passcode, onWrongCode,
+}: { token: string; passcode?: string; onWrongCode?: () => void }) {
   const submit = useSubmitCheckIn(token);
   const inputRef = useRef<HTMLInputElement>(null);
   const [studentId, setStudentId] = useState('');
@@ -15,9 +17,13 @@ export function PublicCheckInForm({ token }: { token: string }) {
     e.preventDefault();
     setError('');
     try {
-      const res = await submit.mutateAsync(studentId);
+      const res = await submit.mutateAsync({ student_id: studentId, passcode });
       setResult(res);
     } catch (err) {
+      if (err instanceof ApiClientError && err.status === 401 && onWrongCode) {
+        onWrongCode();
+        return;
+      }
       setError(err instanceof ApiClientError ? err.message : 'Something went wrong — please try again.');
     }
   }

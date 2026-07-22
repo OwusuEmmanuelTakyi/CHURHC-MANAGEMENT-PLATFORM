@@ -119,6 +119,16 @@ export const registrationLinkCreateSchema = z.object({
 
 export const checkInSubmitSchema = z.object({
   student_id: z.string().trim().min(1),
+  passcode: z.string().trim().optional(),
+});
+
+export const attendanceLinkCreateSchema = z.object({
+  kind: z.enum(['self', 'usher']).default('self'),
+  label: z.string().trim().max(60).nullish(),
+});
+
+export const attendanceLinkRevokeSchema = z.object({
+  token: z.uuid(),
 });
 
 // Mirrors memberCreateSchema (minus local_id/status, which the link and the

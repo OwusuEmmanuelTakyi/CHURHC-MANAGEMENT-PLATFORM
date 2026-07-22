@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/api-client';
-import type { ServiceSummary, AttendanceCheckIn, ServiceType } from '@/lib/types';
+import type { ServiceSummary, AttendanceCheckIn, ServiceType, AttendanceLinksResponse, CreatedAttendanceLink } from '@/lib/types';
 
 export function useServices() {
   return useQuery({
@@ -54,25 +54,31 @@ export function useToggleAttendance(serviceId: number) {
   });
 }
 
-export function useAttendanceLink(serviceId: number) {
+export function useAttendanceLinks(serviceId: number) {
   return useQuery({
-    queryKey: ['attendance-link', serviceId],
-    queryFn: () => apiFetch<{ token: string | null }>(`/api/services/${serviceId}/attendance-link`),
+    queryKey: ['attendance-links', serviceId],
+    queryFn: () => apiFetch<AttendanceLinksResponse>(`/api/services/${serviceId}/attendance-link`),
   });
 }
 
 export function useCreateAttendanceLink(serviceId: number) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: () => apiFetch<{ token: string }>(`/api/services/${serviceId}/attendance-link`, { method: 'POST' }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['attendance-link', serviceId] }),
+    mutationFn: (body: { kind: 'self' | 'usher'; label?: string | null }) =>
+      apiFetch<CreatedAttendanceLink>(`/api/services/${serviceId}/attendance-link`, {
+        method: 'POST', body: JSON.stringify(body),
+      }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['attendance-links', serviceId] }),
   });
 }
 
 export function useRevokeAttendanceLink(serviceId: number) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: () => apiFetch<{ ok: true }>(`/api/services/${serviceId}/attendance-link`, { method: 'PATCH' }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['attendance-link', serviceId] }),
+    mutationFn: (token: string) =>
+      apiFetch<{ ok: true }>(`/api/services/${serviceId}/attendance-link`, {
+        method: 'PATCH', body: JSON.stringify({ token }),
+      }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['attendance-links', serviceId] }),
   });
 }

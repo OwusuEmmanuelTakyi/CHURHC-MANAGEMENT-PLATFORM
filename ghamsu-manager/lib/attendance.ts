@@ -1,3 +1,4 @@
+import { randomInt, randomBytes, scryptSync, timingSafeEqual } from 'crypto';
 import { db } from './supabase/server';
 import { audit } from './audit';
 import type { Ctx } from './rbac';
@@ -55,4 +56,30 @@ export async function checkAndIncrementAttendanceIpLimit(ip: string, limit = ATT
   await db.from('attendance_rate_limits')
     .update({ count: existing.count + 1 }).eq('ip', ip).eq('window_hour', windowHour);
   return true;
+}
+
+// End of the service's own calendar day. Ghana (Africa/Accra) has no DST and
+// sits at UTC+0 year-round, so the date string can be used as-is with no
+// timezone conversion.
+export function endOfServiceDay(serviceDate: string): string {
+  return `${serviceDate}T23:59:59.999Z`;
+}
+
+// A 6-digit numeric code — quick for an usher to type on a phone at the door.
+export function generateCheckInPasscode(): string {
+  return String(randomInt(0, 1_000_000)).padStart(6, '0');
+}
+
+export function hashPasscode(passcode: string): string {
+  const salt = randomBytes(8).toString('hex');
+  const hash = scryptSync(passcode, salt, 32).toString('hex');
+  return `${salt}:${hash}`;
+}
+
+export function verifyPasscode(passcode: string, stored: string): boolean {
+  const [salt, hash] = stored.split(':');
+  if (!salt || !hash) return false;
+  const candidate = scryptSync(passcode, salt, 32);
+  const expected = Buffer.from(hash, 'hex');
+  return candidate.length === expected.length && timingSafeEqual(candidate, expected);
 }
